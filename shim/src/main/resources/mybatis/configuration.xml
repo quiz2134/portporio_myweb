@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration      
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+			"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- myBatis 환경설정 
+	 1]데이타베이스 정보 설정
+	 2]매퍼파일의 위치정보 설정
+-->
+<configuration>
+
+	<!-- 마이바티스에서 사용할 .properties(리소스파일) 설정 -->
+	<properties resource="mybatis/jndi.properties"/>
+	
+	
+	<!-- 자바빈 별칭:매퍼파일에서 환경 설정파일로 위치됨 -->	
+	<typeAliases>		
+		<typeAlias alias="memberDto" type="com.shim.myweb.member.MemberDto"/>
+		<typeAlias alias="boardDto" type="com.shim.myweb.board.BoardDto"/>
+		<typeAlias alias="replyDto" type="com.shim.myweb.reply.ReplyDto"/>
+		<typeAlias alias="PagingCriteria" type="com.shim.myweb.util.PagingCriteria"/>		 	
+	</typeAliases>	
+	
+	
+	<!-- 데이타베이스 정보 설정 -->	
+	<environments default="development">
+		<environment id="development">
+			
+			<transactionManager type="JDBC"/>
+			
+			<!-- JDBC API:커넥션 풀 미사용 -->
+			<!-- 
+			<dataSource type="POOLED">
+			<property name="driver" value="oracle.jdbc.OracleDriver"/>
+			<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
+			<property name="username" value="SHIM"/>
+			<property name="password" value="1234"/>
+			</dataSource>
+		 	-->			 	
+		 	
+			<!-- JNDI-->
+			<!-- 커넥션 풀 사용 -->			
+			<dataSource type="JNDI">
+				<property name="data_source" value="${JNDI}"/>
+			</dataSource>		
+		</environment>
+		
+	</environments>
+	
+	
+	<!-- 매퍼파일(SQL쿼리 결과와 자바빈 매핑) -->	
+	<mappers>	
+		<mapper resource="mybatis/memberMapper.xml"/>
+		<mapper resource="mybatis/boardMapper.xml"/>
+		<mapper resource="mybatis/replyMapper.xml"/>		 
+	</mappers>
+	 
+	
+</configuration>

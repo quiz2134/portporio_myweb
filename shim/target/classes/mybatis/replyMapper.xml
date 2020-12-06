@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace속성:매퍼파일의 완전한 경로 (.xml은 생략) -->
+<!-- ※ibatis와는 다르게 id값에 .(dot)을 사용 못한다. -->
+<mapper namespace="mybatis.replyMapper">
+
+	<!-- 댓글 목록 조회 -->
+	<select id="replyList" resultType="ReplyDto">		
+		<!-- CDATA 부등호 처리 할 때 에러나지 않도록 사용 -->  
+		select r.*, m.name writer 
+		  from reply r left join member m on r.id = m.id
+		where r.bno = #{bno} 
+		order by r.grp_no asc, r.reg_dt asc
+	</select>
+	
+
+	<!-- 댓글 등록 -->
+	<insert id="replyInsert" parameterType="ReplyDto">
+		insert into reply
+        values(seq_reply.nextval, #{bno}, #{contents}, #{id}, sysdate, seq_reply.currval, 0)
+	</insert>
+	
+	
+	<!-- 대댓글 등록  -->
+	<insert id="addReplyInsert" parameterType="ReplyDto">
+		insert into reply
+        values(seq_reply.nextval, #{bno}, #{contents}, #{id}, sysdate, #{grp_no}, #{lvl})
+	</insert>
+	
+	
+	<!-- 댓글 수정 -->
+	<update id="replyUpdate" parameterType="ReplyDto">	
+		 update reply
+               set contents = #{contents}                  
+           where cno = #{cno}	 
+	</update>
+	
+	
+	<!-- 댓글 삭제 -->
+	<delete id="replyDelete" parameterType="ReplyDto">	
+		   delete from reply where cno = #{cno}	 
+	</delete>
+	
+	
+	
+	
+</mapper>

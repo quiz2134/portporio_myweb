@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace속성:매퍼파일의 완전한 경로 (.xml은 생략) -->
+<!-- ※ibatis와는 다르게 id값에 .(dot)을 사용 못한다. -->
+<mapper namespace="mybatis.memberMapper">
+
+	<!-- 회원가입 (아이디, 비밀번호, 이름, 탈퇴여부 Y/N )-->
+	<insert id="memberInsert" parameterType="MemberDto">
+		insert into member values(#{id},#{pw}, #{name}, 'N')
+	</insert>
+
+	<!-- 아이디 중복 체크 -->
+	<select id="idCheck" resultType="Integer">		
+		select count(*) from member where id = #{id}
+	</select>
+
+	<!-- 로그인 정보 확인 -->
+	<select id="isMember" resultType="Integer">
+		select count(*) from member 
+	    where id = #{id} 
+	        and pw = #{pw}
+	        and withdraw_yn = 'N'		
+	</select>
+
+	<!-- 회원정보 -->
+	<select id="memberSelectOne" resultType="MemberDto">
+		select * from member where id = #{id}		
+	</select>
+
+	<!-- 회원정보 -->
+	<select id="selectOneById" resultType="MemberDto">
+		select * from member where id = #{id}		
+	</select>
+
+	<!-- 회원정보 변경 -->
+	<update id="memberUpdate" parameterType="MemberDto">
+		update member
+		      set name = #{name}
+		 where id = #{id}	
+	</update>
+
+	<!-- 비밀번호 변경  -->	
+	<update id="pwUpdate" parameterType="MemberDto">
+		update member
+		      set pw = #{pw}
+		 where id = #{id}	
+	</update>
+	
+	
+	<!-- 회원 탈퇴 : 탈퇴 여부 플래그 수정  -->	
+	<update id="memberWithDraw" parameterType="String">
+		update member
+		      set withdraw_yn = 'Y'
+		 where id = #{id}	
+	</update>
+	
+	
+</mapper>

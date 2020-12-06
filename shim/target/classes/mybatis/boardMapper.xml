@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace속성:매퍼파일의 완전한 경로 (.xml은 생략) -->
+<!-- ※ibatis와는 다르게 id값에 .(dot)을 사용 못한다. -->
+<mapper namespace="mybatis.boardMapper">
+
+	<!-- 검색 기능 추가.. 목록 조회 / 총 게시글 수   where 절 추가 내용 -->
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND title LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND contents LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND writer LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (title LIKE '%' || #{keyword} || '%') or (contents LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+	
+	
+	<!-- 게시글 목록 조회 -->
+	<select id="selectList" resultType="BoardDto" parameterType="PagingCriteria">		
+		<!-- CDATA 부등호 처리 할 때 에러나지 않도록 사용 -->	
+            with base as 
+			(
+			    select ib.*, nvl(im.name, '') writer, nvl(ir.replyCnt, 0) replyCnt           
+			      from board ib left join member im on ib.id = im.id                                    
+			                         left join (select bno, count(*) replyCnt
+			                                       from reply group by bno) ir on ib.bno = ir.bno
+			)
+			select * 
+			  from (select row_number() over(order by grp_no desc, seq asc) rn, b.*                   
+			            from base b
+			          where 1=1  
+			             <include refid="search"></include>  
+			          )
+			 where 1=1
+			    and rn between ((#{pageNum}-1) * #{amount}) + 1 and (#{pageNum} * #{amount})
+			 order by grp_no desc, seq asc
+	</select>
+	
+	<!-- 총 게시글 레코드 수  -->
+	<select id="totalCntBySearch" resultType="int" parameterType="PagingCriteria">
+			 with base as 
+ 			 (
+			    select b.*, nvl(m.name, '') writer
+			      from board b left join member m on b.id = m.id
+			    where 1=1    
+			 )
+			 select count(bno) 
+			  from base
+			 where 1=1    
+				<include refid="search"></include>
+	</select>
+		
+
+	
+	<!-- 게시글 등록 -->
+	<insert id="boardInsert" parameterType="BoardDto">
+		insert into board 
+             values (seq_board.nextval, #{id}, #{category}, #{title}, #{contents}, 0, sysdate
+                       , seq_board.currval, 0, 0)
+	</insert>
+	
+
+	<!-- 게시글 상세보기 -->
+	<select id="selectOne" resultType="BoardDto">	
+		 select b.*, m.name writer
+           from board b left join member m on b.id = m.id
+		 where b.bno = #{bno}		 
+	</select>
+
+
+	<!-- 게시글 수정 -->
+	<update id="boardUpdate" parameterType="BoardDto">	
+		 update board
+               set category = #{category}
+                   , title = #{title}
+                   , contents = #{contents}
+           where bno = #{bno}	 
+	</update>	
+	
+		
+	<!-- 게시글 삭제 : grp_no 단위 삭제 처리 -->
+	<delete id="boardDelete" parameterType="BoardDto">	
+		   delete from board where grp_no = #{grp_no}	   
+	</delete>
+	
+	
+	<!-- <![CDATA[
+			   DECLARE
+	               	lvl number := #{lvl};
+	           BEGIN
+	 			 	IF lvl == 0 THEN  
+	    				delete from board where grp_no = #{grp_no};      
+	  		   		ELSE
+	    				delete from board where bno = #{bno};
+	  		   		END IF;
+			   END;	 
+		   ]]> -->
+	
+	
+	<!-- 조회수 증가 -->
+	<update id="boardViewHit" parameterType="int">	
+		 update board
+               set hit_cnt = hit_cnt + 1
+           where bno = #{bno}	 
+	</update>	
+	
+	
+	
+	<!-- 해당 그룹번호의 답글 순서(seq) 수정 -->
+	<update id="commentSeqUpdate" parameterType="BoardDto">
+		<!-- CDATA 부등호 처리 할 때 에러나지 않도록 사용 -->  
+		<![CDATA[	
+			update board
+                 set seq = seq + 1
+             where grp_no = #{grp_no}
+                 and seq > #{seq}
+      	]]>
+	</update>	
+	
+	
+	<!-- 답글 등록 -->
+	<insert id="commentInsert" parameterType="BoardDto">
+		insert into board 
+             values (seq_board.nextval, #{id}, #{category}, #{title}, #{contents}, 0, sysdate
+                      , #{grp_no}, #{seq}+1, #{lvl}+1)
+	</insert>
+	
+		
+	<!-- 답글 삭제: bno 단위 삭제 -->
+	<delete id="commentDelete" parameterType="BoardDto">	
+		   delete from board where bno = #{bno}		   
+	</delete>
+	
+	
+	
+	<!-- 인기 게시글 (메인화면) -->
+	<select id="selectMainList" resultType="BoardDto">
+		<![CDATA[	
+		 with base as (
+		         select row_number() over(order by b.hit_cnt desc, nvl(r.replyCnt, 0) desc) rn
+		                , b.*, m.name writer, nvl(r.replyCnt, 0) replyCnt
+		           from board b left join member m on b.id = m.id
+		                              left join (select count(ir.bno) replyCnt, ir.bno
+		                                             from reply ir group by ir.bno ) r on b.bno=r.bno
+		         where 1=1            
+		         order by b.hit_cnt desc, nvl(r.replyCnt, 0) desc
+		)
+		select * 
+		  from base
+		 where rn <= 7	 
+		 ]]>
+	</select>
+	
+	
+	<!-- 최신 게시글 (메인화면) -->
+	<select id="selectNewList" resultType="BoardDto">
+		<![CDATA[	
+		 with base as (
+		         select row_number() over(order by b.reg_dt desc) rn
+		                , b.*, m.name writer, nvl(r.replyCnt, 0) replyCnt
+		           from board b left join member m on b.id = m.id
+		                              left join (select count(ir.bno) replyCnt, ir.bno
+		                                             from reply ir group by ir.bno ) r on b.bno=r.bno
+		         where 1=1            
+		             and b.lvl = 0
+		         order by b.reg_dt desc
+		)
+		select * 
+		  from base
+		 where rn <= 7
+		 ]]>
+	</select>
+	
+</mapper>
