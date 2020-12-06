@@ -24,9 +24,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Handles requests for the application home page.
- */
+
 @Controller
 public class MemberController {	
 	
