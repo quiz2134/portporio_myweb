@@ -71,17 +71,6 @@ public class MemberController {
 	}
 	
 	
-	// 아이디 비밀번호 일치 여부 확인 (성공시 Login.do / 실패시 알림창 후 return) 
-	// ajax 사용할거면 이걸로.. 하지만 isMember 중복되니 그냥 로그인에서 자바스크립트 알림창으로 처리
-	/*
-	@RequestMapping(value = "/Member/LoginCheck.do", method = RequestMethod.POST)
-	@ResponseBody
-	public String loginCheck(@RequestParam("userId") String userId, @RequestParam("userPw") String userPw) throws Exception {
-		// 아이디 비밀번호 일치한다면 로그인 성공 
-		if (service.loginCheck(userId) == 1) return "success";			
-		return "fail";
-	}
-	*/	
 	
 	// 로그인
 	@RequestMapping(value = "/member/login.do", method = RequestMethod.POST)
