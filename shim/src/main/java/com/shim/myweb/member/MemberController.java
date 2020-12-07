@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
+/**
+ * Handles requests for the application home page.
+ */
 @Controller
 public class MemberController {	
 	
@@ -67,7 +69,6 @@ public class MemberController {
 		// 중복 아니면 "ok" 리턴		
 		return "ok";
 	}
-	
 	
 	
 	// 로그인
@@ -164,7 +165,7 @@ public class MemberController {
 	}	
 	
 	
-	// 비밀번호 변경 (비밀번호 변경 시 확인용)
+	// 비밀번호 변경 (DB 처리)
 	@RequestMapping(value = "/member/pwModify.do", method = RequestMethod.POST)	
 	public String pwModify(HttpServletRequest req) throws Exception {		
 		
