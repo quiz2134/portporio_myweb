@@ -1,6 +1,6 @@
-#Portforio
+# Portforio
 
-###내용
+### 내용
 
 개인 프로젝트 소스입니다. 기본적인 메인 화면 구성이나 컴포넌트들은 주로 부트스트랩을 
 이용하였으며, Spring Framework (STS3) 기반으로 기능 구현하였습니다.
@@ -12,20 +12,27 @@
 
 
 
-###개발환경
 
-####Front-End                     ####Back-Eed
-  * Bootstrap 3                  * Java JDK 1.8
-  * HTML / CSS                  * Spring
-  * jQuery                        * Oracle 11g
-  * Ajax                           * Mybatis
-                                    * Tomcat 9
+### 개발환경
+
+##### Front-End
+  * Bootstrap 3
+  * HTML / CSS
+  * jQuery
+  * Ajax
+                                    
+##### Back-Eed
+  * Java JDK 1.8
+  * Spring
+  * Oracle 11g
+  * Mybatis
+  * Tomcat 9
 
 
 
 
 
-###Spring 동작과정
+### Spring 동작과정
 
   1) 클라이언트에서 요청(url pattern) 이 들어오면 DispatcherServlet에서 요청을 받는다. (web.xml)
 
